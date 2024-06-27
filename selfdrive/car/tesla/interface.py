@@ -20,7 +20,7 @@ class CarInterface(CarInterfaceBase):
     ret.steerControlType = car.CarParams.SteerControlType.angle
 
     ret.longitudinalActuatorDelay = 0.5 # s
-    ret.radarTimeStep = (1.0 / 8) # 8Hz
+    ret.radarUnavailable = True
 
     params = Params()
     stock_acc = params.get_bool("StockTaccEnabledToggle")
