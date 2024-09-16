@@ -23,6 +23,7 @@
 #include "tools/cabana/commands.h"
 #include "tools/cabana/streamselector.h"
 #include "tools/cabana/tools/findsignal.h"
+#include "tools/cabana/tools/findnewsignals.h"
 #include "tools/cabana/utils/export.h"
 
 MainWindow::MainWindow(AbstractStream *stream, const QString &dbc_file) : QMainWindow() {
@@ -146,6 +147,7 @@ void MainWindow::createActions() {
   tools_menu = menuBar()->addMenu(tr("&Tools"));
   tools_menu->addAction(tr("Find &Similar Bits"), this, &MainWindow::findSimilarBits);
   tools_menu->addAction(tr("&Find Signal"), this, &MainWindow::findSignal);
+  tools_menu->addAction(tr("Find &New Signal"), this, &MainWindow::findNewSignals);
 
   // Help Menu
   QMenu *help_menu = menuBar()->addMenu(tr("&Help"));
@@ -577,6 +579,12 @@ void MainWindow::findSimilarBits() {
 void MainWindow::findSignal() {
   FindSignalDlg *dlg = new FindSignalDlg(this);
   QObject::connect(dlg, &FindSignalDlg::openMessage, messages_widget, &MessagesWidget::selectMessage);
+  dlg->show();
+}
+
+void MainWindow::findNewSignals() {
+  FindNewSignalsDlg *dlg = new FindNewSignalsDlg(this);
+  QObject::connect(dlg, &FindNewSignalsDlg::openMessage, messages_widget, &MessagesWidget::selectMessage);
   dlg->show();
 }
 
