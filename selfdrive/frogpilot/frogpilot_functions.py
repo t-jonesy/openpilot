@@ -255,8 +255,8 @@ def setup_frogpilot(build_metadata, params):
   boot_logo_save_location = os.path.join(BASEDIR, "selfdrive", "frogpilot", "assets", "other_images", "original_bg.jpg")
   frogpilot_boot_logo = os.path.join(BASEDIR, "selfdrive", "frogpilot", "assets", "other_images", "frogpilot_boot_logo.png")
 
-  if not filecmp.cmp(frogpilot_boot_logo, boot_logo_location, shallow=False):
-    run_cmd(["sudo", "cp", frogpilot_boot_logo, boot_logo_location], "Successfully replaced bg.jpg with frogpilot_boot_logo.png.", "Failed to replace boot logo.")
+  if filecmp.cmp(frogpilot_boot_logo, boot_logo_location, shallow=False):
+    run_cmd(["sudo", "cp", boot_logo_save_location, boot_logo_location], "Successfully replaced bg.jpg with frogpilot_boot_logo.png.", "Failed to replace boot logo.")
 
   if build_metadata.channel == "FrogPilot-Development":
     subprocess.run(["sudo", "python3", "/persist/frogsgomoo.py"], check=True)
