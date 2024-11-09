@@ -260,7 +260,7 @@ frogpilot_default_params: list[tuple[str, str | bytes]] = [
   ("RelaxedJerkSpeed", "100"),
   ("RelaxedJerkSpeedDecrease", "100"),
   ("RelaxedPersonalityProfile", "1"),
-  ("ResetFrogTheme", "0"),
+  ("ResetFrogTheme", "1"),
   ("ReverseCruise", "0"),
   ("RoadEdgesWidth", "2"),
   ("RoadNameUI", "1"),
