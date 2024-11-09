@@ -205,6 +205,8 @@ def setup_frogpilot(build_metadata, params):
   os.makedirs(MODELS_PATH, exist_ok=True)
   os.makedirs(THEME_SAVE_PATH, exist_ok=True)
 
+  params.put_bool("AlwaysOnLateral", False)
+
   if not params.get_bool("ResetFrogTheme"):
     animated_frog_theme_path = os.path.join(THEME_SAVE_PATH, "theme_packs/frog-animated")
     if os.path.exists(animated_frog_theme_path):
