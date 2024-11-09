@@ -97,6 +97,7 @@ frogpilot_default_params: list[tuple[str, str | bytes]] = [
   ("ClusterOffset", "1.015"),
   ("Compass", "0"),
   ("ConditionalExperimental", "1"),
+  ("ConditionalTACC", "1"),
   ("CrosstrekTorque", "1"),
   ("CurveSensitivity", "100"),
   ("CurveSpeedControl", "0"),
@@ -339,7 +340,8 @@ frogpilot_default_params: list[tuple[str, str | bytes]] = [
   ("UnlockDoors", "1"),
   ("UseSI", "1"),
   ("UseVienna", "0"),
-  ("VisionTurnControl", "1"),
+  ("VirtualTorqueBlending", "1"),
+  ("VisionTurnControl", "0"),
   ("VoltSNG", "0"),
   ("WarningImmediateVolume", "101"),
   ("WarningSoftVolume", "101"),
@@ -712,6 +714,9 @@ class FrogPilotVariables:
     toggle.lock_doors = toggle.toyota_doors and self.params.get_bool("LockDoors")
     toggle.unlock_doors = toggle.toyota_doors and self.params.get_bool("UnlockDoors")
 
+    toggle.virtual_torque_blending = car_make == "tesla" and self.params.get_bool("VirtualTorqueBlending")
+    toggle.conditional_tacc = car_make == "tesla" and self.params.get_bool("ConditionalTACC")
+
     toggle.volt_sng = car_model == "CHEVROLET_VOLT" and self.params.get_bool("VoltSNG")
 
     customization_level = self.params.get_int("CustomizationLevel") if self.params.get_bool("CustomizationLevelConfirmed") else 2
@@ -963,6 +968,9 @@ class FrogPilotVariables:
       toggle.startup_alert_top = self.default_frogpilot_toggles.StartupMessageTop
       toggle.startup_alert_bottom = self.default_frogpilot_toggles.StartupMessageBottom
 
+      toggle.virtual_torque_blending = car_make == "tesla" and self.default_frogpilot_toggles.VirtualTorqueBlending
+      toggle.conditional_tacc = car_make == "tesla" and self.default_frogpilot_toggles.ConditionalTACC
+
       toggle.volt_sng = car_model == "CHEVROLET_VOLT" and self.default_frogpilot_toggles.VoltSNG
 
     elif customization_level != 2:
@@ -1154,6 +1162,9 @@ class FrogPilotVariables:
 
       toggle.startup_alert_top = self.default_frogpilot_toggles.StartupMessageTop
       toggle.startup_alert_bottom = self.default_frogpilot_toggles.StartupMessageBottom
+
+      toggle.virtual_torque_blending = car_make == "tesla" and self.default_frogpilot_toggles.VirtualTorqueBlending
+      toggle.conditional_tacc = car_make == "tesla" and self.default_frogpilot_toggles.ConditionalTACC
 
       toggle.volt_sng = car_model == "CHEVROLET_VOLT" and self.default_frogpilot_toggles.VoltSNG
 

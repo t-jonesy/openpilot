@@ -1,5 +1,4 @@
 from openpilot.common.numpy_fast import clip
-from openpilot.common.params import Params
 from opendbc.can.packer import CANPacker
 from openpilot.selfdrive.car import apply_std_steer_angle_limits
 from openpilot.selfdrive.car.interfaces import CarControllerBase
@@ -31,7 +30,6 @@ class CarController(CarControllerBase):
     self.last_hands_nanos = 0
     self.packer = CANPacker(dbc_name)
     self.tesla_can = TeslaCAN(self.packer)
-    self.virtual_blending = False
 
   def update(self, CC, CS, now_nanos, frogpilot_toggles):
     actuators = CC.actuators
@@ -60,7 +58,7 @@ class CarController(CarControllerBase):
       lkas_enabled = CC.latActive and not CS.steering_override
 
       if lkas_enabled:
-        if self.virtual_blending:
+        if frogpilot_toggles.virtual_torque_blending:
           # Update steering angle request with user input torque
           apply_angle = torque_blended_angle(actuators.steeringAngleDeg, CS.out.steeringTorque)
         else:
@@ -77,7 +75,7 @@ class CarController(CarControllerBase):
       self.apply_angle_last = apply_angle
       can_sends.append(self.tesla_can.create_steering_control(apply_angle, lkas_enabled, (self.frame // 2) % 16))
 
-    if not self.virtual_blending:
+    if not frogpilot_toggles.virtual_torque_blending:
       # Cancel on user steering override when blending is disabled
       if CS.steering_override:
         pcm_cancel_cmd = True
@@ -87,7 +85,10 @@ class CarController(CarControllerBase):
       state = 4 if not pcm_cancel_cmd else 13  # 4=ACC_ON, 13=ACC_CANCEL_GENERIC_SILENT
       accel = clip(actuators.accel, CarControllerParams.ACCEL_MIN, CarControllerParams.ACCEL_MAX)
       cntr = CS.das_control["DAS_controlCounter"]
-      can_sends.append(self.tesla_can.create_longitudinal_command(state, accel, cntr, CC.longActive))
+      if frogpilot_toggles.conditional_tacc and CC.hudControl.leadVisible:
+        can_sends.append(self.tesla_can.stock_longitudinal(state, CS.das_control, cntr, CC.longActive, CS.out.vEgo))
+      else:
+        can_sends.append(self.tesla_can.create_longitudinal_command(state, accel, cntr, CC.longActive))
 
     # Increment counter so cancel is prioritized even without openpilot longitudinal
     if pcm_cancel_cmd and not self.CP.openpilotLongitudinalControl:
