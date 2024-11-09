@@ -179,7 +179,7 @@ frogpilot_default_params: list[tuple[str, str | bytes]] = [
   ("LeadInfo", "1"),
   ("LockDoors", "1"),
   ("LongitudinalMetrics", "1"),
-  ("LongitudinalTune", "1"),
+  ("LongitudinalTune", "0"),
   ("LongPitch", "1"),
   ("LosAngelesCalibrationParams", ""),
   ("LosAngelesDrives", "0"),
