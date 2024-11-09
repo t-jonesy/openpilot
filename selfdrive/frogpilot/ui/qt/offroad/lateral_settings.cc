@@ -10,6 +10,9 @@ FrogPilotLateralPanel::FrogPilotLateralPanel(FrogPilotSettingsWindow *parent) : 
     {"ForceAutoTune", tr("Force Auto Tune On"), tr("Forces comma's auto lateral tuning for unsupported vehicles."), ""},
     {"ForceAutoTuneOff", tr("Force Auto Tune Off"), tr("Forces comma's auto lateral tuning off for supported vehicles."), ""},
 
+    {"AlwaysOnLateral", tr("Always on Lateral"), tr("openpilot's steering control stays active even when the brake or gas pedals are pressed.\n\nDeactivate only occurs with the 'Cruise Control' button."), "../frogpilot/assets/toggle_icons/icon_always_on_lateral.png"},
+    {"AlwaysOnLateralLKAS", tr("Control with LKAS Button"), tr("Controls the current state of 'Always on Lateral' with the 'LKAS' button."), ""},
+    {"AlwaysOnLateralMain", tr("Enable with Cruise Control"), tr("Activates 'Always on Lateral' whenever 'Cruise Control' is active bypassing the requirement to enable openpilot first."), ""},
     {"PauseAOLOnBrake", tr("Pause on Brake Below"), tr("Pauses 'Always on Lateral' when the brake pedal is pressed below the set speed."), ""},
     {"HideAOLStatusBar", tr("Hide the Status Bar"), tr("Hides status bar for 'Always On Lateral'."), ""},
 
