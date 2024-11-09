@@ -266,7 +266,7 @@ void FrogPilotVehiclesPanel::updateToggles() {
   bool hyundai = carMake == "Genesis" || carMake == "Hyundai" || carMake == "Kia";
   bool subaru = carMake == "Subaru";
   bool toyota = carMake == "Lexus" || carMake == "Toyota";
-  bool tesla = carMake == "tesla";
+  bool tesla = carMake == "Tesla";
 
   for (auto &[key, toggle] : toggles) {
     bool setVisible = false;
