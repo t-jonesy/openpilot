@@ -1,5 +1,6 @@
 import crcmod
 
+from openpilot.common.conversions import Conversions as CV
 from openpilot.common.numpy_fast import clip
 from openpilot.selfdrive.car.tesla.values import CANBUS, CarControllerParams
 from openpilot.selfdrive.controls.lib.drive_helpers import V_CRUISE_MAX
@@ -45,17 +46,17 @@ class TeslaCAN:
     values["DAS_controlChecksum"] = self.checksum(0x2b9, data[:7])
     return self.packer.make_can_msg("DAS_control", CANBUS.party, values)
 
-  def stock_longitudinal(self, acc_state, das_control, cntr, active, speed):
-    min_accel = -3.48
-    max_accel = max(2 - (0.04 * speed), 0.5)
+  def stock_longitudinal(self, acc_state, accel, das_control, cntr, active, speed):
+    speed = speed * CV.MS_TO_KPH
+    max_accel = das_control["DAS_accelMax"] if speed < 25 else accel # 25 km/h
     values = {
       "DAS_setSpeed": 0 if not active else das_control["DAS_setSpeed"],
       "DAS_accState": acc_state,
       "DAS_aebEvent": 0,
       "DAS_jerkMin": das_control["DAS_jerkMin"],
       "DAS_jerkMax": das_control["DAS_jerkMax"],
-      "DAS_accelMin": 0 if not active else clip(das_control["DAS_accelMin"], min_accel, max_accel),
-      "DAS_accelMax": 0 if not active else clip(das_control["DAS_accelMax"], min_accel, max_accel),
+      "DAS_accelMin": 0 if not active else clip(das_control["DAS_accelMin"], -3.48, 2),
+      "DAS_accelMax": 0 if not active else clip(max_accel, -3.48, 2),
       "DAS_controlCounter": cntr,
       "DAS_controlChecksum": 0,
     }
