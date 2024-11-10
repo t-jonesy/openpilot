@@ -49,7 +49,7 @@ class TeslaCAN:
   #state, accel, CS.das_control, cntr, CC.longActive, CS.out.vEgo
   def stock_longitudinal(self, acc_state, accel, das_control, cntr, active, speed):
     speed = speed * CV.MS_TO_KPH
-    if speed > 20 and (das_control["DAS_accelMax"] >= accel >= das_control["DAS_accelMin"]):
+    if speed > 40 and (das_control["DAS_accelMax"] >= accel >= das_control["DAS_accelMin"]):
       max_accel = accel
     else:
       max_accel = das_control["DAS_accelMax"]
