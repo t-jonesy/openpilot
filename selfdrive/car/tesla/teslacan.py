@@ -48,7 +48,11 @@ class TeslaCAN:
 
   def stock_longitudinal(self, acc_state, accel, das_control, cntr, active, speed):
     speed = speed * CV.MS_TO_KPH
-    max_accel = das_control["DAS_accelMax"] if speed < 25 else accel # 25 km/h
+    if speed > 20 and (das_control["DAS_accelMax"] >= accel >= das_control["DAS_accelMin"]):
+      max_accel = accel
+    else:
+      max_accel = das_control["DAS_accelMax"]
+
     values = {
       "DAS_setSpeed": 0 if not active else das_control["DAS_setSpeed"],
       "DAS_accState": acc_state,

@@ -134,8 +134,8 @@ FrogPilotVehiclesPanel::FrogPilotVehiclesPanel(FrogPilotSettingsWindow *parent) 
   addItem(disableOpenpilotLong);
 
   std::vector<std::tuple<QString, QString, QString, QString>> vehicleToggles {
-    {"VirtualTorqueBlending", tr("virtual Torque Blending"), tr("Experimental feature to allow influencing of the steering angle while ALC is active."), ""},
-    {"ConditionalTACC", tr("conditional TACC"), tr("Use Traffic-Aware Cruise Control (TACC) when a lead vehicle is detected."), ""},
+    {"VirtualTorqueBlending", tr("Virtual Torque Blending"), tr("Experimental feature to allow influencing of the steering angle while ALC is active."), ""},
+    {"ConditionalTACC", tr("Conditional TACC"), tr("Use Traffic-Aware Cruise Control (TACC) when a lead vehicle is detected."), ""},
 
     {"VoltSNG", tr("2017 Volt Stop and Go Hack"), tr("Forces stop and go for the 2017 Chevy Volt."), ""},
     {"ExperimentalGMTune", tr("Experimental GM Tune"), tr("Enables FrogsGoMoo's experimental GM tune that is based on nothing but guesswork. Use at your own risk!"), ""},
