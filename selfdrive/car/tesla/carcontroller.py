@@ -86,6 +86,7 @@ class CarController(CarControllerBase):
       accel = clip(actuators.accel, CarControllerParams.ACCEL_MIN, CarControllerParams.ACCEL_MAX)
       cntr = CS.das_control["DAS_controlCounter"]
       if frogpilot_toggles.conditional_tacc and CC.hudControl.leadVisible:
+        # IMPORTANT: DAS_control is sent at 100Hz, any change will change the transition rate.
         can_sends.append(self.tesla_can.stock_longitudinal(state, accel, CS.das_control, cntr, CC.longActive, CS.out.vEgo))
       else:
         can_sends.append(self.tesla_can.create_longitudinal_command(state, accel, cntr, CC.longActive))
