@@ -80,8 +80,8 @@ class TeslaCAN:
       "DAS_aebEvent": 0,
       "DAS_jerkMin": das_control["DAS_jerkMin"],
       "DAS_jerkMax": das_control["DAS_jerkMax"],
-      "DAS_accelMin": 0 if not active else self.min_accel_last,
-      "DAS_accelMax": 0 if not active else self.max_accel_last,
+      "DAS_accelMin": self.min_accel_last,
+      "DAS_accelMax": self.max_accel_last,
       "DAS_controlCounter": cntr,
       "DAS_controlChecksum": 0,
     }
