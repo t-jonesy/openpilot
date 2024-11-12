@@ -55,22 +55,22 @@ class TeslaCAN:
     speed = speed * CV.MS_TO_KPH
 
     # accelMax
-    if speed > 40 and (das_control["DAS_accelMax"] >= accel):
+    if speed > 40 and (das_control["DAS_accelMax"] >= accel >= das_control["DAS_accelMin"]):
       max_accel = accel
     else:
       max_accel = das_control["DAS_accelMax"]
-    max_tr = 0.02 if speed < 25 else 0.005
+    max_tr = 0.03 if speed < 40 else 0.005
     max_accel = clip(max_accel, self.max_accel_last - max_tr, self.max_accel_last + max_tr)
     self.max_accel_last = clip(max(max_accel, 0), -3.48, 2)
 
     # accelMin
     min_accel = clip(das_control["DAS_accelMin"], -3.48, 2)
     if min_accel < 0 and accel >= 0:
-      min_tr = 0.005
+      min_tr = 0.001
     elif min_accel < -1 and accel < -1:
-      min_tr = 0.05
+      min_tr = 0.04
     else:
-      min_tr = 0.02
+      min_tr = 0.01
     min_accel = clip(min_accel, self.min_accel_last - min_tr, self.min_accel_last + min_tr)
     self.min_accel_last = min_accel
 
