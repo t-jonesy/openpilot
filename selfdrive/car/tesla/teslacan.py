@@ -46,28 +46,15 @@ class TeslaCAN:
     values["DAS_controlChecksum"] = self.checksum(0x2b9, data[:7])
     return self.packer.make_can_msg("DAS_control", CANBUS.party, values)
 
-  def stock_longitudinal(self, acc_state, accel, das_control, cntr, active,speed):
-    speed = speed * CV.MS_TO_KPH
-    if speed > 40 and (das_control["DAS_accelMax"] >= accel >= das_control["DAS_accelMin"]):
-      max_accel = accel
-    else:
-      max_accel = das_control["DAS_accelMax"]
-
-    min_accel = das_control["DAS_accelMin"]
-
-    # Handle case where stock ACC and Openpilot differ, potentially causing phantom braking
-    if (das_control["DAS_accelMin"] < 0 and das_control["DAS_setSpeed"] < speed) and accel > 0:
-      min_accel = 0
-      max_accel = 0
-    
+  def stock_longitudinal(self, acc_state, accel, das_control, cntr, speed):
     values = {
-      "DAS_setSpeed": 0 if not active else das_control["DAS_setSpeed"],
+      "DAS_setSpeed": das_control["DAS_setSpeed"],
       "DAS_accState": acc_state,
       "DAS_aebEvent": 0,
       "DAS_jerkMin": das_control["DAS_jerkMin"],
       "DAS_jerkMax": das_control["DAS_jerkMax"],
-      "DAS_accelMin": clip(min(accel, -0.1), -3.48, 2),
-      "DAS_accelMax": clip(max(accel, 0.1), -3.48, 2),
+      "DAS_accelMin": min(accel, -0.2),
+      "DAS_accelMax": max(accel, 0),
       "DAS_controlCounter": cntr,
       "DAS_controlChecksum": 0,
     }
