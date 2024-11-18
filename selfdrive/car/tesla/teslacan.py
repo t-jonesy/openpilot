@@ -59,17 +59,15 @@ class TeslaCAN:
     if (das_control["DAS_accelMin"] < 0 and das_control["DAS_setSpeed"] < speed) and accel > 0:
       min_accel = 0
       max_accel = 0
-    elif das_control["DAS_accelMin"] < 0 and accel < 0 and abs(das_control["DAS_accelMin"] - accel) > 0.5:
-      min_accel = (das_control["DAS_accelMin"] + accel) / 2
-
+    
     values = {
       "DAS_setSpeed": das_control["DAS_setSpeed"],
       "DAS_accState": acc_state,
       "DAS_aebEvent": 0,
       "DAS_jerkMin": das_control["DAS_jerkMin"],
       "DAS_jerkMax": das_control["DAS_jerkMax"],
-      "DAS_accelMin": clip(min_accel, -3.48, 2),
-      "DAS_accelMax": clip(max(max_accel, 0), -3.48, 2),
+      "DAS_accelMin": clip(min(accel, -0.1), -3.48, 2),
+      "DAS_accelMax": clip(max(accel, 0.1), -3.48, 2),
       "DAS_controlCounter": cntr,
       "DAS_controlChecksum": 0,
     }
