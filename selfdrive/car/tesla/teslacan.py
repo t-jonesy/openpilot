@@ -46,7 +46,7 @@ class TeslaCAN:
     values["DAS_controlChecksum"] = self.checksum(0x2b9, data[:7])
     return self.packer.make_can_msg("DAS_control", CANBUS.party, values)
 
-  def stock_longitudinal(self, acc_state, accel, das_control, cntr, speed):
+  def stock_longitudinal(self, acc_state, accel, das_control, cntr, active,speed):
     speed = speed * CV.MS_TO_KPH
     if speed > 40 and (das_control["DAS_accelMax"] >= accel >= das_control["DAS_accelMin"]):
       max_accel = accel
