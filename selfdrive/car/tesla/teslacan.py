@@ -61,7 +61,7 @@ class TeslaCAN:
       max_accel = 0
     
     values = {
-      "DAS_setSpeed": das_control["DAS_setSpeed"],
+      "DAS_setSpeed": 0 if not active else das_control["DAS_setSpeed"],
       "DAS_accState": acc_state,
       "DAS_aebEvent": 0,
       "DAS_jerkMin": das_control["DAS_jerkMin"],
