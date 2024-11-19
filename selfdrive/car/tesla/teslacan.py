@@ -49,7 +49,9 @@ class TeslaCAN:
     speed = speed * CV.MS_TO_KPH
 
     # Improve behavior during stop-and-go traffic
-    if speed <= 15:
+    if das_control["DAS_setSpeed"] == 0:
+      max_accel = 0
+    elif speed <= 15:
       max_accel = das_control["DAS_accelMax"]
     elif 15 < speed < 25:
       # Blending from stock ACC to openpilot longitudinal between 15 and 25 km/h
