@@ -1,7 +1,6 @@
 import crcmod
 
 from openpilot.common.conversions import Conversions as CV
-from openpilot.common.numpy_fast import clip
 from openpilot.selfdrive.car.tesla.values import CANBUS, CarControllerParams
 from openpilot.selfdrive.controls.lib.drive_helpers import V_CRUISE_MAX
 
@@ -47,14 +46,26 @@ class TeslaCAN:
     return self.packer.make_can_msg("DAS_control", CANBUS.party, values)
 
   def stock_longitudinal(self, acc_state, accel, das_control, cntr, speed):
+    speed = speed * CV.MS_TO_KPH
+
+    # Improve behavior during stop-and-go traffic
+    if speed <= 15:
+      max_accel = das_control["DAS_accelMax"]
+    elif 15 < speed < 25:
+      # Blending from stock ACC to openpilot longitudinal between 15 and 25 km/h
+      factor = (speed - 15) / (25 - 15)
+      max_accel = (1 - factor) * das_control["DAS_accelMax"] + factor * accel
+    else:
+      max_accel = accel
+
     values = {
       "DAS_setSpeed": das_control["DAS_setSpeed"],
       "DAS_accState": acc_state,
       "DAS_aebEvent": 0,
       "DAS_jerkMin": das_control["DAS_jerkMin"],
       "DAS_jerkMax": das_control["DAS_jerkMax"],
-      "DAS_accelMin": min(accel, -0.2),
-      "DAS_accelMax": max(accel, 0),
+      "DAS_accelMin": min(accel, -0.3),
+      "DAS_accelMax": max(max_accel, 0),
       "DAS_controlCounter": cntr,
       "DAS_controlChecksum": 0,
     }
