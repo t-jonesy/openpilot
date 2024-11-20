@@ -51,7 +51,7 @@ class TeslaCAN:
     
     # Improve behavior during stop-and-go traffic
     if speed <= 5:
-      max_accel = mac(das_control["DAS_accelMax"], 0)
+      max_accel = max(das_control["DAS_accelMax"], 0)
       min_accel = das_control["DAS_accelMin"]
     elif speed <= 25:
       max_accel = das_control["DAS_accelMax"]
