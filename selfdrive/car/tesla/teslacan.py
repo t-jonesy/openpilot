@@ -1,5 +1,5 @@
 import crcmod
-
+from openpilot.common.numpy_fast import clip
 from openpilot.common.conversions import Conversions as CV
 from openpilot.selfdrive.car.tesla.values import CANBUS, CarControllerParams
 from openpilot.selfdrive.controls.lib.drive_helpers import V_CRUISE_MAX
@@ -50,7 +50,7 @@ class TeslaCAN:
     
     # Improve behavior during stop-and-go traffic
     if speed <= 25:
-      max_accel = das_control["DAS_accelMax"]
+      max_accel = clip(das_control["DAS_accelMax"], CarControllerParams.ACCEL_MIN, CarControllerParams.ACCEL_MAX) 
     elif 25 < speed < 35:
       # Blending from stock ACC to openpilot longitudinal between 25 and 35 km/h
       factor = (speed - 25) / (35 - 25)
