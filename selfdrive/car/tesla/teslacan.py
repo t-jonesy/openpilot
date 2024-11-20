@@ -60,11 +60,8 @@ class TeslaCAN:
     else:
       max_accel = accel
 
-    if speed <= 10:
-      min_accel = das_control["DAS_accelMin"]
-    elif 10 < speed < 15:
-      factor = (speed - 10) / (15 - 10)
-      min_accel = (1 - factor) * das_control["DAS_accelMin"] + factor * accel
+    if speed <= 10 and accel >= 0:
+      min_accel = 0 # das_control["DAS_accelMin"]
     else:
       min_accel = accel
 
