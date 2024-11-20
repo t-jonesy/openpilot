@@ -47,10 +47,14 @@ class TeslaCAN:
 
   def stock_longitudinal(self, acc_state, accel, das_control, cntr, speed):
     speed = speed * CV.MS_TO_KPH
-
+    min_accel = min(accel, -0.4)
+    
     # Improve behavior during stop-and-go traffic
-    if das_control["DAS_setSpeed"] == 0:
+    if das_control["DAS_setSpeed"] <= speed:
       max_accel = 0
+    elif speed <= 5:
+      max_accel = das_control["DAS_accelMax"]
+      min_accel = das_control["DAS_accelMin"]
     elif speed <= 25:
       max_accel = das_control["DAS_accelMax"]
     elif 25 < speed < 35:
@@ -59,11 +63,6 @@ class TeslaCAN:
       max_accel = (1 - factor) * das_control["DAS_accelMax"] + factor * accel
     else:
       max_accel = accel
-
-    if speed <= 10 and accel >= 0:
-      min_accel = accel # das_control["DAS_accelMin"]
-    else:
-      min_accel = min(accel, -0.4)
 
     values = {
       "DAS_setSpeed": das_control["DAS_setSpeed"],
