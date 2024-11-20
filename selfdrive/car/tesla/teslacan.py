@@ -47,16 +47,9 @@ class TeslaCAN:
 
   def stock_longitudinal(self, acc_state, accel, das_control, cntr, speed):
     speed = speed * CV.MS_TO_KPH
-    min_accel = min(accel, -0.4)
     
     # Improve behavior during stop-and-go traffic
-    if das_control["DAS_setSpeed"] == 0:
-      max_accel = 0
-      min_accel = das_control["DAS_accelMin"]
-    elif speed <= 5:
-      max_accel = max(das_control["DAS_accelMax"], 0)
-      min_accel = das_control["DAS_accelMin"]
-    elif speed <= 25:
+    if speed <= 25:
       max_accel = das_control["DAS_accelMax"]
     elif 25 < speed < 35:
       # Blending from stock ACC to openpilot longitudinal between 25 and 35 km/h
@@ -71,8 +64,8 @@ class TeslaCAN:
       "DAS_aebEvent": 0,
       "DAS_jerkMin": das_control["DAS_jerkMin"],
       "DAS_jerkMax": das_control["DAS_jerkMax"],
-      "DAS_accelMin": min_accel,
-      "DAS_accelMax": max(max_accel, 0),
+      "DAS_accelMin": min(accel, -0.4),
+      "DAS_accelMax": max(max_accel, 0.1),
       "DAS_controlCounter": cntr,
       "DAS_controlChecksum": 0,
     }
