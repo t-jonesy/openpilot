@@ -63,7 +63,7 @@ class TeslaCAN:
     if speed <= 10 and accel >= 0:
       min_accel = 0 # das_control["DAS_accelMin"]
     else:
-      min_accel = accel
+      min_accel = min(min_accel, -0.4)
 
     values = {
       "DAS_setSpeed": das_control["DAS_setSpeed"],
@@ -71,7 +71,7 @@ class TeslaCAN:
       "DAS_aebEvent": 0,
       "DAS_jerkMin": das_control["DAS_jerkMin"],
       "DAS_jerkMax": das_control["DAS_jerkMax"],
-      "DAS_accelMin": min(min_accel, -0.4),
+      "DAS_accelMin": min_accel,
       "DAS_accelMax": max(max_accel, 0),
       "DAS_controlCounter": cntr,
       "DAS_controlChecksum": 0,
