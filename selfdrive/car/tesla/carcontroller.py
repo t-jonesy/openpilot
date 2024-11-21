@@ -85,8 +85,8 @@ class CarController(CarControllerBase):
       state = 4 if not pcm_cancel_cmd else 13  # 4=ACC_ON, 13=ACC_CANCEL_GENERIC_SILENT
       accel = clip(actuators.accel, CarControllerParams.ACCEL_MIN, CarControllerParams.ACCEL_MAX)
       cntr = CS.das_control["DAS_controlCounter"]
-      if frogpilot_toggles.conditional_tacc and CC.hudControl.leadVisible:
-        can_sends.append(self.tesla_can.stock_longitudinal(state, accel, CS.das_control, cntr, CC.longActive, CS.out.vEgo))
+      if frogpilot_toggles.conditional_tacc and CC.longActive and CC.hudControl.leadVisible:
+        can_sends.append(self.tesla_can.stock_longitudinal(state, accel, CS.das_control, cntr, CS.out.vEgo))
       else:
         can_sends.append(self.tesla_can.create_longitudinal_command(state, accel, cntr, CC.longActive))
 
