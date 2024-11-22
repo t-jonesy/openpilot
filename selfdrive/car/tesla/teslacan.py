@@ -51,8 +51,8 @@ class TeslaCAN:
 
   def stock_longitudinal(self, acc_state, accel, das_control, cntr, speed):
     speed = speed * CV.MS_TO_KPH
-    min_rate = 0.01
-    max_rate = 0.01
+    min_rate = 0.005
+    max_rate = 0.005
 
     # Improve behavior during stop-and-go traffic
     if speed <= 25:
