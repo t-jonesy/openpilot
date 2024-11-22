@@ -9,6 +9,8 @@ class TeslaCAN:
   def __init__(self, packer):
     self.packer = packer
     self.crc = crcmod.mkCrcFun(0x11d, initCrc=0x00, rev=False, xorOut=0xff)
+    self.last_min_accel = 0
+    self.last_max_accel = 0
 
   @staticmethod
   def checksum(msg_id, dat):
@@ -30,14 +32,16 @@ class TeslaCAN:
     return self.packer.make_can_msg("DAS_steeringControl", CANBUS.party, values)
 
   def create_longitudinal_command(self, acc_state, accel, cntr, active):
+    self.last_max_accel = max(accel, 0)
+    self.last_min_accel = accel
     values = {
       "DAS_setSpeed": 0 if (accel < 0 or not active) else V_CRUISE_MAX,
       "DAS_accState": acc_state,
       "DAS_aebEvent": 0,
       "DAS_jerkMin": CarControllerParams.JERK_LIMIT_MIN,
       "DAS_jerkMax": CarControllerParams.JERK_LIMIT_MAX,
-      "DAS_accelMin": accel,
-      "DAS_accelMax": max(accel, 0),
+      "DAS_accelMin": self.last_min_accel,
+      "DAS_accelMax": self.last_max_accel,
       "DAS_controlCounter": cntr,
       "DAS_controlChecksum": 0,
     }
@@ -47,10 +51,13 @@ class TeslaCAN:
 
   def stock_longitudinal(self, acc_state, accel, das_control, cntr, speed):
     speed = speed * CV.MS_TO_KPH
+    min_rate = 0.01
+    max_rate = 0.01
 
     # Improve behavior during stop-and-go traffic
     if speed <= 25:
       max_accel = das_control["DAS_accelMax"]
+      max_rate = 1
     elif 25 < speed < 35:
       # Blending from stock ACC to openpilot longitudinal between 25 and 35 km/h
       factor = (speed - 25) / (35 - 25)
@@ -66,14 +73,17 @@ class TeslaCAN:
     max_accel = clip(max_accel, CarControllerParams.ACCEL_MIN, CarControllerParams.ACCEL_MAX)
     min_accel = clip(min_accel, CarControllerParams.ACCEL_MIN, CarControllerParams.ACCEL_MAX)
 
+    self.last_min_accel = clip(min(min_accel, -0.4), self.last_min_accel - min_rate, self.last_min_accel + min_rate)
+    self.last_max_accel = clip(max(max_accel, 0), self.last_max_accel - max_rate, self.last_max_accel + max_rate)
+
     values = {
       "DAS_setSpeed": das_control["DAS_setSpeed"],
       "DAS_accState": acc_state,
       "DAS_aebEvent": 0,
       "DAS_jerkMin": das_control["DAS_jerkMin"],
       "DAS_jerkMax": das_control["DAS_jerkMax"],
-      "DAS_accelMin": min(min_accel, -0.4),
-      "DAS_accelMax": max(max_accel, 0),
+      "DAS_accelMin": self.last_min_accel,
+      "DAS_accelMax": self.last_max_accel,
       "DAS_controlCounter": cntr,
       "DAS_controlChecksum": 0,
     }
