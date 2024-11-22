@@ -56,7 +56,7 @@ class TeslaCAN:
       factor = (speed - 25) / (35 - 25)
       max_accel = (1 - factor) * das_control["DAS_accelMax"] + factor * accel
     else:
-      max_accel = accel
+      max_accel = max(accel, 0.2)
 
     if accel < -0.5 and accel > das_control["DAS_accelMin"]:
       min_accel = (accel + das_control["DAS_accelMin"]) / 2
