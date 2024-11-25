@@ -135,7 +135,8 @@ FrogPilotVehiclesPanel::FrogPilotVehiclesPanel(FrogPilotSettingsWindow *parent) 
 
   std::vector<std::tuple<QString, QString, QString, QString>> vehicleToggles {
     {"VirtualTorqueBlending", tr("Virtual Torque Blending"), tr("Experimental feature to allow influencing of the steering angle while ALC is active."), ""},
-    {"ConditionalTACC", tr("Conditional TACC"), tr("Use Traffic-Aware Cruise Control (TACC) when a lead vehicle is detected."), ""},
+    {"HybridTACC", tr("Hybrid TACC"), tr("Use a mix between Traffic-Aware Cruise Control (TACC) and openpilot long when a lead vehicle is detected."), ""},
+    {"TACC", tr("TACC"), tr("Use stock Tesla Traffic-Aware Cruise Control (TACC)"), ""},
 
     {"VoltSNG", tr("2017 Volt Stop and Go Hack"), tr("Forces stop and go for the 2017 Chevy Volt."), ""},
     {"ExperimentalGMTune", tr("Experimental GM Tune"), tr("Enables FrogsGoMoo's experimental GM tune that is based on nothing but guesswork. Use at your own risk!"), ""},
@@ -272,11 +273,7 @@ void FrogPilotVehiclesPanel::updateToggles() {
     bool setVisible = false;
 
     if (tesla && teslaKeys.find(key) != teslaKeys.end()) {
-      if (longitudinalKeys.find(key) != longitudinalKeys.end()) {
-        setVisible = hasOpenpilotLongitudinal && !disableOpenpilotLongitudinal;
-      } else {
-        setVisible = true;
-      }
+      setVisible = true;
     } else if (gm && gmKeys.find(key) != gmKeys.end()) {
       if (voltKeys.find(key) != voltKeys.end()) {
         setVisible = isVolt && hasOpenpilotLongitudinal && !disableOpenpilotLongitudinal;

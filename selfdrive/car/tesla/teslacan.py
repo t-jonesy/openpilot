@@ -9,6 +9,8 @@ class TeslaCAN:
   def __init__(self, packer):
     self.packer = packer
     self.crc = crcmod.mkCrcFun(0x11d, initCrc=0x00, rev=False, xorOut=0xff)
+    self.last_min_accel = 0
+    self.last_max_accel = 0
 
   @staticmethod
   def checksum(msg_id, dat):
@@ -30,14 +32,16 @@ class TeslaCAN:
     return self.packer.make_can_msg("DAS_steeringControl", CANBUS.party, values)
 
   def create_longitudinal_command(self, acc_state, accel, cntr, active):
+    self.last_max_accel = max(accel, 0)
+    self.last_min_accel = accel
     values = {
       "DAS_setSpeed": 0 if (accel < 0 or not active) else V_CRUISE_MAX,
       "DAS_accState": acc_state,
       "DAS_aebEvent": 0,
       "DAS_jerkMin": CarControllerParams.JERK_LIMIT_MIN,
       "DAS_jerkMax": CarControllerParams.JERK_LIMIT_MAX,
-      "DAS_accelMin": accel,
-      "DAS_accelMax": max(accel, 0),
+      "DAS_accelMin": self.last_min_accel,
+      "DAS_accelMax": self.last_max_accel,
       "DAS_controlCounter": cntr,
       "DAS_controlChecksum": 0,
     }
@@ -45,7 +49,7 @@ class TeslaCAN:
     values["DAS_controlChecksum"] = self.checksum(0x2b9, data[:7])
     return self.packer.make_can_msg("DAS_control", CANBUS.party, values)
 
-  def stock_longitudinal(self, acc_state, accel, das_control, cntr, speed):
+  def hybrid_longitudinal(self, acc_state, accel, das_control, cntr, speed):
     speed = speed * CV.MS_TO_KPH
 
     # Improve behavior during stop-and-go traffic
@@ -56,15 +60,18 @@ class TeslaCAN:
       factor = (speed - 25) / (35 - 25)
       max_accel = (1 - factor) * das_control["DAS_accelMax"] + factor * accel
     else:
-      max_accel = accel
+      max_accel = max(accel, 0.4)
 
     if accel < -0.5 and accel > das_control["DAS_accelMin"]:
-      min_accel = (accel + das_control["DAS_accelMin"]) / 2
+      min_accel = das_control["DAS_accelMin"]
     else:
       min_accel = accel
 
     max_accel = clip(max_accel, CarControllerParams.ACCEL_MIN, CarControllerParams.ACCEL_MAX)
     min_accel = clip(min_accel, CarControllerParams.ACCEL_MIN, CarControllerParams.ACCEL_MAX)
+
+    self.last_min_accel = min(min_accel, -0.4)
+    self.last_max_accel = max(max_accel, 0)
 
     values = {
       "DAS_setSpeed": das_control["DAS_setSpeed"],
@@ -72,8 +79,8 @@ class TeslaCAN:
       "DAS_aebEvent": 0,
       "DAS_jerkMin": das_control["DAS_jerkMin"],
       "DAS_jerkMax": das_control["DAS_jerkMax"],
-      "DAS_accelMin": min(min_accel, -0.5),
-      "DAS_accelMax": max(max_accel, 0),
+      "DAS_accelMin": self.last_min_accel,
+      "DAS_accelMax": self.last_max_accel,
       "DAS_controlCounter": cntr,
       "DAS_controlChecksum": 0,
     }
@@ -81,3 +88,22 @@ class TeslaCAN:
     values["DAS_controlChecksum"] = self.checksum(0x2b9, data[:7])
     return self.packer.make_can_msg("DAS_control", CANBUS.party, values)
 
+  def stock_longitudinal(self, acc_state, das_control, cntr):
+
+    max_accel = clip(das_control["DAS_accelMin"], CarControllerParams.ACCEL_MIN, CarControllerParams.ACCEL_MAX)
+    min_accel = clip(das_control["DAS_accelMax"], CarControllerParams.ACCEL_MIN, CarControllerParams.ACCEL_MAX)
+
+    values = {
+      "DAS_setSpeed": 0 if not active else das_control["DAS_setSpeed"],
+      "DAS_accState": acc_state,
+      "DAS_aebEvent": 0,
+      "DAS_jerkMin": das_control["DAS_jerkMin"],
+      "DAS_jerkMax": das_control["DAS_jerkMax"],
+      "DAS_accelMin": min_accel,
+      "DAS_accelMax": max(max_accel, 0),
+      "DAS_controlCounter": cntr,
+      "DAS_controlChecksum": 0,
+    }
+    data = self.packer.make_can_msg("DAS_control", CANBUS.party, values)[2]
+    values["DAS_controlChecksum"] = self.checksum(0x2b9, data[:7])
+    return self.packer.make_can_msg("DAS_control", CANBUS.party, values)
