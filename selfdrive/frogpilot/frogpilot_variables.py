@@ -1167,7 +1167,7 @@ class FrogPilotVariables:
       toggle.startup_alert_bottom = self.default_frogpilot_toggles.StartupMessageBottom
 
       toggle.virtual_torque_blending = car_make == "tesla" and self.default_frogpilot_toggles.VirtualTorqueBlending
-      toggle.hybrid_tacc = car_make == "tesla" and self.default_frogpilot_toggles.ConditionalTACC
+      toggle.hybrid_tacc = car_make == "tesla" and self.default_frogpilot_toggles.HybridTACC
       toggle.tacc = car_make == "tesla" and self.default_frogpilot_toggles.TACC
 
       toggle.volt_sng = car_model == "CHEVROLET_VOLT" and self.default_frogpilot_toggles.VoltSNG
