@@ -49,15 +49,12 @@ class TeslaCAN:
     values["DAS_controlChecksum"] = self.checksum(0x2b9, data[:7])
     return self.packer.make_can_msg("DAS_control", CANBUS.party, values)
 
-  def stock_longitudinal(self, acc_state, accel, das_control, cntr, speed):
+  def hybrid_longitudinal(self, acc_state, accel, das_control, cntr, speed):
     speed = speed * CV.MS_TO_KPH
-    min_rate = 0.008
-    max_rate = 0.008
 
     # Improve behavior during stop-and-go traffic
     if speed <= 25:
       max_accel = das_control["DAS_accelMax"]
-      max_rate = 1
     elif 25 < speed < 35:
       # Blending from stock ACC to openpilot longitudinal between 25 and 35 km/h
       factor = (speed - 25) / (35 - 25)
@@ -73,8 +70,8 @@ class TeslaCAN:
     max_accel = clip(max_accel, CarControllerParams.ACCEL_MIN, CarControllerParams.ACCEL_MAX)
     min_accel = clip(min_accel, CarControllerParams.ACCEL_MIN, CarControllerParams.ACCEL_MAX)
 
-    self.last_min_accel = clip(min(min_accel, -0.4), self.last_min_accel - min_rate, self.last_min_accel + min_rate)
-    self.last_max_accel = clip(max(max_accel, 0), self.last_max_accel - max_rate, self.last_max_accel + max_rate)
+    self.last_min_accel = min(min_accel, -0.4)
+    self.last_max_accel = max(max_accel, 0)
 
     values = {
       "DAS_setSpeed": das_control["DAS_setSpeed"],
@@ -84,6 +81,26 @@ class TeslaCAN:
       "DAS_jerkMax": das_control["DAS_jerkMax"],
       "DAS_accelMin": self.last_min_accel,
       "DAS_accelMax": self.last_max_accel,
+      "DAS_controlCounter": cntr,
+      "DAS_controlChecksum": 0,
+    }
+    data = self.packer.make_can_msg("DAS_control", CANBUS.party, values)[2]
+    values["DAS_controlChecksum"] = self.checksum(0x2b9, data[:7])
+    return self.packer.make_can_msg("DAS_control", CANBUS.party, values)
+
+  def stock_longitudinal(self, acc_state, das_control, cntr):
+
+    max_accel = clip(das_control["DAS_accelMin"], CarControllerParams.ACCEL_MIN, CarControllerParams.ACCEL_MAX)
+    min_accel = clip(das_control["DAS_accelMax"], CarControllerParams.ACCEL_MIN, CarControllerParams.ACCEL_MAX)
+
+    values = {
+      "DAS_setSpeed": das_control["DAS_setSpeed"],
+      "DAS_accState": acc_state,
+      "DAS_aebEvent": 0,
+      "DAS_jerkMin": das_control["DAS_jerkMin"],
+      "DAS_jerkMax": das_control["DAS_jerkMax"],
+      "DAS_accelMin": min_accel,
+      "DAS_accelMax": max(max_accel, 0),
       "DAS_controlCounter": cntr,
       "DAS_controlChecksum": 0,
     }
