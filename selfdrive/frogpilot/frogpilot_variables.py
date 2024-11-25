@@ -716,7 +716,7 @@ class FrogPilotVariables:
     toggle.unlock_doors = toggle.toyota_doors and self.params.get_bool("UnlockDoors")
 
     toggle.virtual_torque_blending = car_make == "tesla" and self.params.get_bool("VirtualTorqueBlending")
-    toggle.hybrid_tacc = car_make == "tesla" and self.params.get_bool("HybridTacc")
+    toggle.hybrid_tacc = car_make == "tesla" and self.params.get_bool("HybridTACC")
     toggle.tacc = car_make == "tesla" and self.params.get_bool("TACC")
 
     toggle.volt_sng = car_model == "CHEVROLET_VOLT" and self.params.get_bool("VoltSNG")
