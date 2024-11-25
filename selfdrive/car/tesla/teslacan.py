@@ -90,8 +90,8 @@ class TeslaCAN:
 
   def stock_longitudinal(self, acc_state, das_control, cntr):
 
-    max_accel = clip(das_control["DAS_accelMin"], CarControllerParams.ACCEL_MIN, CarControllerParams.ACCEL_MAX)
-    min_accel = clip(das_control["DAS_accelMax"], CarControllerParams.ACCEL_MIN, CarControllerParams.ACCEL_MAX)
+    min_accel = clip(das_control["DAS_accelMin"], CarControllerParams.ACCEL_MIN, CarControllerParams.ACCEL_MAX)
+    max_accel = clip(das_control["DAS_accelMax"], CarControllerParams.ACCEL_MIN, CarControllerParams.ACCEL_MAX)
 
     values = {
       "DAS_setSpeed": das_control["DAS_setSpeed"],
