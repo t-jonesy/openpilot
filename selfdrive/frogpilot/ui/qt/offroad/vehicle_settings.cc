@@ -272,11 +272,7 @@ void FrogPilotVehiclesPanel::updateToggles() {
     bool setVisible = false;
 
     if (tesla && teslaKeys.find(key) != teslaKeys.end()) {
-      if (longitudinalKeys.find(key) != longitudinalKeys.end()) {
-        setVisible = hasOpenpilotLongitudinal && !disableOpenpilotLongitudinal;
-      } else {
-        setVisible = true;
-      }
+      setVisible = true;
     } else if (gm && gmKeys.find(key) != gmKeys.end()) {
       if (voltKeys.find(key) != voltKeys.end()) {
         setVisible = isVolt && hasOpenpilotLongitudinal && !disableOpenpilotLongitudinal;
