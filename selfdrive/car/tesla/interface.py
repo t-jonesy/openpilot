@@ -23,8 +23,10 @@ class CarInterface(CarInterfaceBase):
 
     if candidate in [CAR.TESLA_AP3_MODEL3, CAR.TESLA_AP3_MODELY]:
       flags = Panda.FLAG_TESLA_MODEL3_Y
-      flags |= Panda.FLAG_TESLA_LONG_CONTROL
-      ret.openpilotLongitudinalControl = True
+
+      if not disable_openpilot_long:
+        flags |= Panda.FLAG_TESLA_LONG_CONTROL
+      ret.openpilotLongitudinalControl = not disable_openpilot_long
       ret.safetyConfigs = [get_safety_config(car.CarParams.SafetyModel.tesla, flags)]
 
     ret.steerLimitTimer = 1.0

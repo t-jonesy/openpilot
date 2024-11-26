@@ -18,7 +18,7 @@ private:
   void updateToggles();
 
   std::set<QString> teslaKeys = {
-    "VirtualTorqueBlending", "HybridTACC", "TACC"
+    "VirtualTorqueBlending", "HybridTACC"
   };
 
   std::set<QString> gmKeys = {

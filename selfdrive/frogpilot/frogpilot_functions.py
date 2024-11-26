@@ -209,9 +209,6 @@ def setup_frogpilot(build_metadata, params):
 
   if params.get_bool("DisableOpenpilotLongitudinal"):
     params.put_bool("HybridTACC", False)
-    params.put_bool("TACC", True)
-
-  params.put_bool("DisableOpenpilotLongitudinal", False)
 
   if not params.get_bool("ResetFrogTheme"):
     animated_frog_theme_path = os.path.join(THEME_SAVE_PATH, "theme_packs/frog-animated")

@@ -98,7 +98,6 @@ frogpilot_default_params: list[tuple[str, str | bytes]] = [
   ("Compass", "0"),
   ("ConditionalExperimental", "1"),
   ("HybridTACC", "0"),
-  ("TACC", "1"),
   ("CrosstrekTorque", "1"),
   ("CurveSensitivity", "100"),
   ("CurveSpeedControl", "0"),
@@ -717,7 +716,6 @@ class FrogPilotVariables:
 
     toggle.virtual_torque_blending = car_make == "tesla" and self.params.get_bool("VirtualTorqueBlending")
     toggle.hybrid_tacc = car_make == "tesla" and self.params.get_bool("HybridTACC")
-    toggle.tacc = car_make == "tesla" and self.params.get_bool("TACC")
 
     toggle.volt_sng = car_model == "CHEVROLET_VOLT" and self.params.get_bool("VoltSNG")
 
@@ -972,7 +970,6 @@ class FrogPilotVariables:
 
       toggle.virtual_torque_blending = car_make == "tesla" and self.default_frogpilot_toggles.VirtualTorqueBlending
       toggle.hybrid_tacc = car_make == "tesla" and self.default_frogpilot_toggles.HybridTACC
-      toggle.tacc = car_make == "tesla" and self.default_frogpilot_toggles.TACC
 
       toggle.volt_sng = car_model == "CHEVROLET_VOLT" and self.default_frogpilot_toggles.VoltSNG
 
@@ -1168,7 +1165,6 @@ class FrogPilotVariables:
 
       toggle.virtual_torque_blending = car_make == "tesla" and self.default_frogpilot_toggles.VirtualTorqueBlending
       toggle.hybrid_tacc = car_make == "tesla" and self.default_frogpilot_toggles.HybridTACC
-      toggle.tacc = car_make == "tesla" and self.default_frogpilot_toggles.TACC
 
       toggle.volt_sng = car_model == "CHEVROLET_VOLT" and self.default_frogpilot_toggles.VoltSNG
 

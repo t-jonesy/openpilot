@@ -80,23 +80,3 @@ class TeslaCAN:
     data = self.packer.make_can_msg("DAS_control", CANBUS.party, values)[2]
     values["DAS_controlChecksum"] = self.checksum(0x2b9, data[:7])
     return self.packer.make_can_msg("DAS_control", CANBUS.party, values)
-
-  def stock_longitudinal(self, das_control, cntr):
-
-    min_accel = clip(das_control["DAS_accelMin"], CarControllerParams.ACCEL_MIN, CarControllerParams.ACCEL_MAX)
-    max_accel = clip(das_control["DAS_accelMax"], CarControllerParams.ACCEL_MIN, CarControllerParams.ACCEL_MAX)
-
-    values = {
-      "DAS_setSpeed": das_control["DAS_setSpeed"],
-      "DAS_accState": CS.das_control["DAS_accState"],
-      "DAS_aebEvent": CS.das_control["DAS_aebEvent"],
-      "DAS_jerkMin": das_control["DAS_jerkMin"],
-      "DAS_jerkMax": das_control["DAS_jerkMax"],
-      "DAS_accelMin": min_accel,
-      "DAS_accelMax": max(max_accel, 0),
-      "DAS_controlCounter": cntr,
-      "DAS_controlChecksum": 0,
-    }
-    data = self.packer.make_can_msg("DAS_control", CANBUS.party, values)[2]
-    values["DAS_controlChecksum"] = self.checksum(0x2b9, data[:7])
-    return self.packer.make_can_msg("DAS_control", CANBUS.party, values)
