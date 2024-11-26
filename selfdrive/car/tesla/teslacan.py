@@ -88,8 +88,8 @@ class TeslaCAN:
 
     values = {
       "DAS_setSpeed": das_control["DAS_setSpeed"],
-      "DAS_accState": CS.das_control["DAS_accState"],
-      "DAS_aebEvent": CS.das_control["DAS_aebEvent"],
+      "DAS_accState": das_control["DAS_accState"],
+      "DAS_aebEvent": das_control["DAS_aebEvent"],
       "DAS_jerkMin": das_control["DAS_jerkMin"],
       "DAS_jerkMax": das_control["DAS_jerkMax"],
       "DAS_accelMin": min_accel,
