@@ -86,7 +86,7 @@ class CarController(CarControllerBase):
       accel = clip(actuators.accel, CarControllerParams.ACCEL_MIN, CarControllerParams.ACCEL_MAX)
       cntr = CS.das_control["DAS_controlCounter"]
       if frogpilot_toggles.tacc:
-        can_sends.append(self.tesla_can.stock_longitudinal(state, CS.das_control, cntr))
+        can_sends.append(self.tesla_can.stock_longitudinal(CS.das_control, cntr))
       elif frogpilot_toggles.hybrid_tacc and CC.longActive and CC.hudControl.leadVisible:
         can_sends.append(self.tesla_can.hybrid_longitudinal(state, accel, CS.das_control, cntr, CS.out.vEgo))
       else:
