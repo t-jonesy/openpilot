@@ -1,6 +1,9 @@
+import time
+
 import crcmod
-from openpilot.common.numpy_fast import clip
+
 from openpilot.common.conversions import Conversions as CV
+from openpilot.common.numpy_fast import clip
 from openpilot.selfdrive.car.tesla.values import CANBUS, CarControllerParams
 from openpilot.selfdrive.controls.lib.drive_helpers import V_CRUISE_MAX
 
@@ -9,6 +12,7 @@ class TeslaCAN:
   def __init__(self, packer):
     self.packer = packer
     self.crc = crcmod.mkCrcFun(0x11d, initCrc=0x00, rev=False, xorOut=0xff)
+    self.time_gas_released = time.time()
 
   @staticmethod
   def checksum(msg_id, dat):
@@ -45,12 +49,20 @@ class TeslaCAN:
     values["DAS_controlChecksum"] = self.checksum(0x2b9, data[:7])
     return self.packer.make_can_msg("DAS_control", CANBUS.party, values)
 
-  def hybrid_longitudinal(self, acc_state, accel, das_control, cntr, speed):
+  def hybrid_longitudinal(self, acc_state, accel, das_control, cntr, speed, gas_pressed):
     speed = speed * CV.MS_TO_KPH
+
+    time_since_gas_released = time.time() - self.time_gas_released
 
     # Improve behavior during stop-and-go traffic
     if speed <= 25:
       max_accel = das_control["DAS_accelMax"]
+    elif not gas_pressed and 0 < time_since_gas_released < 2:
+      factor = time_since_gas_released / 2.0
+      max_accel = (1 - factor) * das_control["DAS_accelMax"] + factor * accel
+    elif gas_pressed:
+      max_accel = das_control["DAS_accelMax"]
+      self.time_gas_released = time.time()
     elif 25 < speed < 35:
       # Blending from stock ACC to openpilot longitudinal between 25 and 35 km/h
       factor = (speed - 25) / (35 - 25)
@@ -59,6 +71,8 @@ class TeslaCAN:
       max_accel = max(accel, 0.4)
 
     if accel < -0.5 and accel > das_control["DAS_accelMin"]:
+      min_accel = das_control["DAS_accelMin"]
+    elif gas_pressed:
       min_accel = das_control["DAS_accelMin"]
     else:
       min_accel = accel
