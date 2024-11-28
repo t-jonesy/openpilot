@@ -59,7 +59,7 @@ class TeslaCAN:
       max_accel = das_control["DAS_accelMax"]
     elif not gas_pressed and 0 < time_since_gas_released < 2:
       factor = time_since_gas_released / 2.0
-      max_accel = (1 - factor) * das_control["DAS_accelMax"] + factor * accel
+      max_accel = (1 - factor) * das_control["DAS_accelMax"] + factor * max(accel, 0.4)
     elif gas_pressed:
       max_accel = das_control["DAS_accelMax"]
       self.time_gas_released = time.time()
