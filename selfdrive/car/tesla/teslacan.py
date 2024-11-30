@@ -57,13 +57,13 @@ class TeslaCAN:
 
     # Improve behavior during stop-and-go traffic
     if speed <= 25 or gas_pressed:
-      max_fade = 1.0
+      max_fade = 1.0  # 1 second
       factor = max(time.time() - self.max_op_time, max_fade) / max_fade
       max_accel = (1 - factor) * max(accel, 0.4) + factor * das_control["DAS_accelMax"]
       self.max_tacc_time = time.time()
     else:
       # Blending from stock ACC to openpilot longitudinal
-      max_fade = 2.0
+      max_fade = 2.0  # 2 second
       factor = max(time.time() - self.max_tacc_time, max_fade) / max_fade
       max_accel = (1 - factor) * das_control["DAS_accelMax"] + factor * max(accel, 0.4)
       self.max_op_time = time.time()
