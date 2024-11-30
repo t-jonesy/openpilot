@@ -71,7 +71,7 @@ class TeslaCAN:
       self.max_op_time = time.time()
 
     if (-0.5 > accel > das_control["DAS_accelMin"]) or gas_pressed:
-      min_fade = 1.0  # 1 second
+      min_fade = 2.0 # 2 seconds
       factor = min(time.time() - self.min_op_time, min_fade) / min_fade
       min_accel = (1 - factor) * accel + factor * das_control["DAS_accelMin"]
       self.min_tacc_time = time.time()
