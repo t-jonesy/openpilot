@@ -12,7 +12,10 @@ class TeslaCAN:
   def __init__(self, packer):
     self.packer = packer
     self.crc = crcmod.mkCrcFun(0x11d, initCrc=0x00, rev=False, xorOut=0xff)
-    self.time_gas_released = time.time()
+    self.max_tacc_time = time.time()
+    self.max_op_time = time.time()
+    self.min_tacc_time = time.time()
+    self.min_op_time = time.time()
 
   @staticmethod
   def checksum(msg_id, dat):
@@ -52,30 +55,25 @@ class TeslaCAN:
   def hybrid_longitudinal(self, acc_state, accel, das_control, cntr, speed, gas_pressed):
     speed = speed * CV.MS_TO_KPH
 
-    time_since_gas_released = time.time() - self.time_gas_released
-
     # Improve behavior during stop-and-go traffic
-    if speed <= 25:
+    if speed <= 25 or gas_pressed:
       max_accel = das_control["DAS_accelMax"]
-    elif not gas_pressed and 0 < time_since_gas_released < 2:
-      factor = time_since_gas_released / 2.0
+      self.max_tacc_time = time.time()
+    else:
+      # Blending from stock ACC to openpilot longitudinal
+      factor = max(time.time() - self.max_tacc_time, max_fade) / 2.0
       max_accel = (1 - factor) * das_control["DAS_accelMax"] + factor * max(accel, 0.4)
-    elif gas_pressed:
-      max_accel = das_control["DAS_accelMax"]
-      self.time_gas_released = time.time()
-    elif 25 < speed < 35:
-      # Blending from stock ACC to openpilot longitudinal between 25 and 35 km/h
-      factor = (speed - 25) / (35 - 25)
-      max_accel = (1 - factor) * das_control["DAS_accelMax"] + factor * accel
-    else:
-      max_accel = max(accel, 0.4)
 
-    if accel < -0.5 and accel > das_control["DAS_accelMin"]:
-      min_accel = das_control["DAS_accelMin"]
-    elif gas_pressed:
-      min_accel = das_control["DAS_accelMin"]
+    if (-0.5 > accel > das_control["DAS_accelMin"]) or gas_pressed:
+      min_fade = 1.0  # 1 second
+      factor = max(time.time() - self.min_op_time, min_fade) / min_fade
+      min_accel = (1 - factor) * das_control["DAS_accelMin"] + factor * accel
+      self.min_tacc_time = time.time()
     else:
-      min_accel = accel
+      min_fade = 1.0  # 1 second
+      factor = max(time.time() - self.min_tacc_time, min_fade) / min_fade
+      min_accel = (1 - factor) * accel + factor * das_control["DAS_accelMin"]
+      self.min_op_time = time.time()
 
     max_accel = clip(max_accel, CarControllerParams.ACCEL_MIN, CarControllerParams.ACCEL_MAX)
     min_accel = clip(min_accel, CarControllerParams.ACCEL_MIN, CarControllerParams.ACCEL_MAX)
