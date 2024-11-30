@@ -61,24 +61,24 @@ class TeslaCAN:
     if speed <= 25 or gas_pressed:
       max_fade = 1.0  # 1 second
       factor = max(time.time() - self.max_op_time, max_fade) / max_fade
-      max_accel = (1 - factor) * self.last_max_accel + factor * das_control["DAS_accelMax"]
+      max_accel = (1 - factor) * max(accel, 0.4) + factor * das_control["DAS_accelMax"]
       self.max_tacc_time = time.time()
     else:
       # Blending from stock ACC to openpilot longitudinal
       max_fade = 2.0  # 2 second
       factor = max(time.time() - self.max_tacc_time, max_fade) / max_fade
-      max_accel = (1 - factor) * self.last_max_accel + factor * max(accel, 0.4)
+      max_accel = (1 - factor) * das_control["DAS_accelMax"] + factor * max(accel, 0.4)
       self.max_op_time = time.time()
 
     if (-0.5 > accel > das_control["DAS_accelMin"]) or gas_pressed:
       min_fade = 1.0  # 1 second
       factor = max(time.time() - self.min_op_time, min_fade) / min_fade
-      min_accel = (1 - factor) * self.last_min_accel + factor * das_control["DAS_accelMin"]
+      min_accel = (1 - factor) * accel + factor * das_control["DAS_accelMin"]
       self.min_tacc_time = time.time()
     else:
       min_fade = 1.0  # 1 second
       factor = max(time.time() - self.min_tacc_time, min_fade) / min_fade
-      min_accel = (1 - factor) * self.last_min_accel + factor * accel
+      min_accel = (1 - factor) * das_control["DAS_accelMax"] + factor * accel
       self.min_op_time = time.time()
 
     max_accel = clip(max_accel, CarControllerParams.ACCEL_MIN, CarControllerParams.ACCEL_MAX)
