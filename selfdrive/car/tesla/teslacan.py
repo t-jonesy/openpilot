@@ -61,7 +61,8 @@ class TeslaCAN:
       self.max_tacc_time = time.time()
     else:
       # Blending from stock ACC to openpilot longitudinal
-      factor = max(time.time() - self.max_tacc_time, max_fade) / 2.0
+      max_fade = 2.0
+      factor = max(time.time() - self.max_tacc_time, max_fade) / max_fade
       max_accel = (1 - factor) * das_control["DAS_accelMax"] + factor * max(accel, 0.4)
 
     if (-0.5 > accel > das_control["DAS_accelMin"]) or gas_pressed:
