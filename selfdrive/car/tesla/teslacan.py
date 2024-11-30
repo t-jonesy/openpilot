@@ -78,7 +78,7 @@ class TeslaCAN:
     else:
       min_fade = 1.0  # 1 second
       factor = max(time.time() - self.min_tacc_time, min_fade) / min_fade
-      min_accel = (1 - factor) * das_control["DAS_accelMax"] + factor * accel
+      min_accel = (1 - factor) * das_control["DAS_accelMin"] + factor * accel
       self.min_op_time = time.time()
 
     max_accel = clip(max_accel, CarControllerParams.ACCEL_MIN, CarControllerParams.ACCEL_MAX)
